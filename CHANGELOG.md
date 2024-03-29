@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [Unreleased]
+### Improved
+* Documentation regarding Recorder load order.
+
+
 ## [v0.6.0]
 ### Added
 * Added IUserSettings, which is passed throughout the Dec system and can be used to change the behavior of Parser and Recorder.

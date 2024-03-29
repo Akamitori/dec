@@ -20,7 +20,7 @@ namespace Dec
         /// Called on the clone of an object.
         /// </summary>
         /// <remarks>
-        /// While members will be initialized, it is possible that classes referenced by this class will not yet be fully cloned.
+        /// While members will be initialized, it is possible that classes referenced by this class will not yet be fully cloned. Limit your operations to the current object and its members.
         /// </remarks>
         void PostCloneNew();
     }

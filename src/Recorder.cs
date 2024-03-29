@@ -256,6 +256,10 @@ namespace Dec
         /// This function serializes or deserializes a class member. Call it with a reference to the member and a label for the member (usually the member's name.)
         ///
         /// In most cases, you don't need to do anything different for read vs. write; this function will figure out the details and do the right thing.
+        ///
+        /// Be aware that if you're reading an object that was serialized as .Shared(), the object may not be fully deserialized by the time this function returns.
+        /// If you aren't completely certain that the object was unshared when serialized, do not access members of the recorded object - they may be in an unknown state.
+        /// See [`Dec.IPostRead`](xref:Dec.IPostRead) if you need to do something after all objects are fully deserialized.
         /// </remarks>
         public void Record<T>(ref T value, string label)
         {
@@ -331,7 +335,7 @@ namespace Dec
         /// </summary>
         /// <remarks>
         /// Dec will output warnings if a field isn't being used, on the assumption that it's probably a mistake.
-        /// 
+        ///
         /// Sometimes a field is ignored intentionally, usually for backwards compatibility reasons, and this function can be used to suppress that warning.
         /// </remarks>
         public virtual void Ignore(string label) { }
@@ -728,13 +732,13 @@ namespace Dec
             if (seen.Count == allChildren.Length)
             {
                 // we only register things that existed
-                // so if "seen" is the same length as "all", then we've seen everything 
+                // so if "seen" is the same length as "all", then we've seen everything
                 return;
             }
 
             var unused = new HashSet<string>(allChildren);
             unused.ExceptWith(seen);
-            
+
             Dbg.Wrn($"{node.GetInputContext()}: Unused fields: {string.Join(", ", unused)}");
         }
     }
