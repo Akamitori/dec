@@ -259,7 +259,7 @@ namespace Dec
         ///
         /// Be aware that if you're reading an object that was serialized as .Shared(), the object may not be fully deserialized by the time this function returns.
         /// If you aren't completely certain that the object was unshared when serialized, do not access members of the recorded object - they may be in an unknown state.
-        /// See [`Dec.IPostRead`](xref:Dec.IPostRead) if you need to do something after all objects are fully deserialized.
+        /// If you need to do something after all objects are fully deserialized, wait until Recorder.Read() is finished and do a post-processing pass.
         /// </remarks>
         public void Record<T>(ref T value, string label)
         {
