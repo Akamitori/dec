@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 ### Improved
 * Documentation regarding Recorder load order.
 
+### Fixed
+* RecorderEnumerator: List<T>.Enumerator would not properly serialize if the enumerator was empty.
+
 
 ## [v0.6.0]
 ### Added

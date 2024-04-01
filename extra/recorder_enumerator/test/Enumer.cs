@@ -51,5 +51,14 @@ namespace RecorderEnumeratorTest
             clone.reporter.MoveNext();
             Assert.AreEqual(clone.data, clone.reporter.Current);
         }
+
+        [Test]
+        public void EmptyEnumerator([ValuesExcept(RecorderMode.Validation)] RecorderMode recorderMode)
+        {
+            var lienum = new List<int>.Enumerator();
+            var clone = DoRecorderRoundTrip(lienum, recorderMode);
+
+            // there's not much I can really test here
+        }
     }
 }

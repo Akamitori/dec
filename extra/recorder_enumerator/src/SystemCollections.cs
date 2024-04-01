@@ -34,9 +34,17 @@ namespace Dec.RecorderEnumerator
             if (recorder.Mode == Recorder.Direction.Write)
             {
                 // Figure out if we're up-to-date
-                int enumeratorVersion = (int)field_Version.GetValue(input);
-                int containerVersion = (int)field_List_Version.GetValue(field_List.GetValue(input));
-                bool valid = enumeratorVersion == containerVersion;
+                var list = field_List.GetValue(input);
+
+                // this can be null, so make sure we handle this properly
+                bool valid = false;
+                if (list != null)
+                {
+                    int enumeratorVersion = (int)field_Version.GetValue(input);
+                    int containerVersion = (int)field_List_Version.GetValue(list);
+                    valid = enumeratorVersion == containerVersion;
+                }
+
                 recorder.Record(ref valid, "valid");
             }
             else
