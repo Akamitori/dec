@@ -91,7 +91,10 @@ namespace Dec.RecorderEnumerator
 
         public override object Create(Recorder recorder)
         {
+            // "Converting method group 'DefaultKeySelector' to non-delegate type 'object'. Did you intend to invoke the method?" no, no I didn't, actually
+            #pragma warning disable CS8974
             return constructor.Invoke(new object[] { Enumerable.Empty<T>(), DefaultKeySelector, null, false, null });
+            #pragma warning restore CS8974
         }
 
         public override void Read(ref object input, Recorder recorder)
