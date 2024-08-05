@@ -327,6 +327,9 @@ namespace DecTest
             // Write and read in pretty form.
             Pretty,
 
+            // Write and read in simple form.
+            Simple,
+
             // Make everything possible into a ref.
             RefEverything,
 
@@ -341,6 +344,7 @@ namespace DecTest
         {
             if (mode == RecorderMode.Clone)
             {
+                // this is all its own special thing
                 bool expectErrors = expectWriteErrors || expectReadErrors;
                 bool expectWarnings = expectWriteWarnings || expectReadWarnings;
                 Assert.IsFalse(expectErrors && expectWarnings);
@@ -394,7 +398,14 @@ namespace DecTest
             string serialized = null;
             void DoSerialize()
             {
-                serialized = Dec.Recorder.Write(input, pretty: mode == RecorderMode.Pretty);
+                if (mode == RecorderMode.Simple)
+                {
+                    serialized = Dec.Recorder.WriteSimple(input, "simple");
+                }
+                else
+                {
+                    serialized = Dec.Recorder.Write(input, pretty: mode == RecorderMode.Pretty);
+                }
             }
             Assert.IsFalse(expectWriteErrors && expectWriteWarnings); // nyi
             if (expectWriteErrors)
@@ -419,7 +430,14 @@ namespace DecTest
             T deserialized = default;
             void DoDeserialize()
             {
-                deserialized = Dec.Recorder.Read<T>(serialized, stringName: "recorderTestInput");
+                if (mode == RecorderMode.Simple)
+                {
+                    deserialized = Dec.Recorder.ReadSimple<T>(serialized, "simple", stringName: "recorderTestInput");
+                }
+                else
+                {
+                    deserialized = Dec.Recorder.Read<T>(serialized, stringName: "recorderTestInput");
+                }
             }
             Assert.IsFalse(expectReadErrors && expectReadWarnings); // nyi
             if (expectReadErrors)

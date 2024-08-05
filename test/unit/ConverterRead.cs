@@ -533,6 +533,13 @@ namespace DecTest
         [Test]
         public void ExceptionStringRead([ValuesExcept(RecorderMode.Clone, RecorderMode.Validation)] RecorderMode mode, [Values] bool asRef)
         {
+            if (mode == RecorderMode.Simple && asRef)
+            {
+                // this is not a combo we care about
+                Assert.Ignore();
+                return;
+            }
+
             UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(ExceptionStringConverter) } });
             new Dec.Parser().Finish(); // we're only doing this to kick off the converter init; this is bad and I should fix it
 
@@ -579,6 +586,13 @@ namespace DecTest
         [Test]
         public void ExceptionRecordRead([ValuesExcept(RecorderMode.Clone, RecorderMode.Validation)] RecorderMode mode, [Values] bool asRef)
         {
+            if (mode == RecorderMode.Simple && asRef)
+            {
+                // this is not a combo we care about
+                Assert.Ignore();
+                return;
+            }
+
             UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(ExceptionRecordConverter) } });
             new Dec.Parser().Finish(); // we're only doing this to kick off the converter init; this is bad and I should fix it
 
@@ -608,6 +622,13 @@ namespace DecTest
         [Test]
         public void ExceptionFactoryCreate([ValuesExcept(RecorderMode.Clone, RecorderMode.Validation)] RecorderMode mode, [Values] bool asRef)
         {
+            if (mode == RecorderMode.Simple && asRef)
+            {
+                // this is not a combo we care about
+                Assert.Ignore();
+                return;
+            }
+
             UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(ExceptionFactoryCreateConverter) } });
             new Dec.Parser().Finish(); // we're only doing this to kick off the converter init; this is bad and I should fix it
 
@@ -630,6 +651,13 @@ namespace DecTest
         [Test]
         public void ExceptionFactoryRead([ValuesExcept(RecorderMode.Clone, RecorderMode.Validation)] RecorderMode mode, [Values] bool asRef)
         {
+            if (mode == RecorderMode.Simple && asRef)
+            {
+                // this is not a combo we care about
+                Assert.Ignore();
+                return;
+            }
+
             UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(ExceptionFactoryReadConverter) } });
             new Dec.Parser().Finish(); // we're only doing this to kick off the converter init; this is bad and I should fix it
 
@@ -721,7 +749,7 @@ namespace DecTest
         }
 
         [Test]
-        public void RefsInWrongPlaces([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public void RefsInWrongPlaces([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
         {
             UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(RefsInWrongPlacesConverter) } });
             new Dec.Parser().Finish(); // we're only doing this to kick off the converter init; this is bad and I should fix it
@@ -745,7 +773,7 @@ namespace DecTest
         }
 
         [Test]
-        public void RefsInWrongPlacesSubtle([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public void RefsInWrongPlacesSubtle([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
         {
             UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(RefsInWrongPlacesConverter) } });
             new Dec.Parser().Finish(); // we're only doing this to kick off the converter init; this is bad and I should fix it
@@ -760,7 +788,7 @@ namespace DecTest
         }
 
         [Test]
-        public void RefsInWrongPlacesBroken([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public void RefsInWrongPlacesBroken([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
         {
             UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(RefsInWrongPlacesConverter) } });
             new Dec.Parser().Finish(); // we're only doing this to kick off the converter init; this is bad and I should fix it
@@ -782,7 +810,7 @@ namespace DecTest
         }
 
         [Test]
-        public void RefsInRightPlaces([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public void RefsInRightPlaces([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
         {
             UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(RefsInRightPlacesConverter) } });
             new Dec.Parser().Finish(); // we're only doing this to kick off the converter init; this is bad and I should fix it

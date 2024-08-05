@@ -6,7 +6,7 @@ namespace Dec
     public partial class Recorder
     {
         /// <summary>
-        /// Returns a fully-formed XML document starting at an object.
+        /// Returns a fully-formed XML document starting at an object. Supports non-tree layouts with shared objects, including loops and self-referencing objects.
         /// </summary>
         public static string Write<T>(T target, bool pretty = false, IUserSettings userSettings = null)
         {
@@ -19,6 +19,24 @@ namespace Dec
                 Serialization.ComposeElement(writerContext.StartData(typeof(T)), target, typeof(T));
 
                 return writerContext.Finish(pretty);
+            }
+        }
+
+        /// <summary>
+        /// Returns a fully-formed XML document starting at an object. Supports tree layouts only; no shared objects, no loops, no self-referencing objects.
+        /// </summary>
+        public static string WriteSimple<T>(T target, string rootTag, IUserSettings userSettings = null)
+        {
+            Serialization.Initialize();
+
+            using (var _ = new CultureInfoScope(Config.CultureInfo))
+            {
+                var writerContext = new WriterXmlSimple(rootTag, userSettings);
+
+                Serialization.ComposeElement(writerContext.StartData(typeof(T)), target, typeof(T));
+
+                // right now I'm just assuming "always pretty"
+                return writerContext.Finish(true);
             }
         }
 
@@ -185,6 +203,29 @@ namespace Dec
                 // And now, we can finally parse our actual root element!
                 // (which accounts for a tiny percentage of things that need to be parsed)
                 return (T)Serialization.ParseElement(new List<ReaderNodeParseable>() { parseNode }, typeof(T), null, readerContext, new Recorder.Context() { shared = Context.Shared.Flexible });
+            }
+        }
+
+        /// <summary>
+        /// Parses the output of WriteSimple, generating an object and all its related serialized data.
+        /// </summary>
+        public static T ReadSimple<T>(string input, string rootTag, string stringName = "input", IUserSettings userSettings = null)
+        {
+            Serialization.Initialize();
+
+            using (var _ = new CultureInfoScope(Config.CultureInfo))
+            {
+                var reader = ReaderFileXmlSimple.Create(input, rootTag, stringName, userSettings);
+                if (reader == null)
+                {
+                    return default;
+                }
+
+                var readerContext = new ReaderContext() { allowReflection = false, allowRefs = false };
+
+                // And now, we can finally parse our actual root element!
+                // (which accounts for a tiny percentage of things that need to be parsed)
+                return (T)Serialization.ParseElement(new List<ReaderNodeParseable>() { reader }, typeof(T), null, readerContext, new Recorder.Context() { shared = Context.Shared.Flexible });
             }
         }
 

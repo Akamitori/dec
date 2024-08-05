@@ -33,7 +33,7 @@ namespace DecTest
         }
 
         [Test]
-        public void Refs([Values] RecorderMode mode)
+        public void Refs([ValuesExcept(RecorderMode.Simple)] RecorderMode mode)
         {
             UpdateTestParameters(new Dec.Config.UnitTestParameters { });
 
@@ -77,7 +77,7 @@ namespace DecTest
         }
 
         [Test]
-        public void ContainerRecursive([Values] RecorderMode mode)
+        public void ContainerRecursive([ValuesExcept(RecorderMode.Simple)] RecorderMode mode)
         {
             UpdateTestParameters(new Dec.Config.UnitTestParameters { });
 
@@ -122,7 +122,7 @@ namespace DecTest
         }
 
         [Test]
-        public void DepthDoubleLinked([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public void DepthDoubleLinked([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
         {
             // This test verifies that we can write an extremely deep structure without blowing the stack.
             // We use double links so we don't have to worry about generating an absurd xml file in the process.
@@ -163,7 +163,7 @@ namespace DecTest
         }
 
         [Test]
-        public void DepthSingleLinked([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public void DepthSingleLinked([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
         {
             // This test verifies that we can serialize and/or read an extremely deep structure without blowing the stack.
             // We use single links so we don't generate refs, we actually embed objects.
@@ -215,7 +215,7 @@ namespace DecTest
         }
 
         [Test]
-        public void DepthUnshared([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public void DepthUnshared([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
         {
             // We're actually really close to hitting stack overflow here, so we run it with 130 so we can still read it.
             const int depth = 130;
@@ -497,7 +497,7 @@ namespace DecTest
         }
 
         [Test]
-        public void DictionaryKeyRef([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public void DictionaryKeyRef([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
         {
             var dict = new DictionaryKeyRefDec();
             dict.referenceA = new StubRecordable();
@@ -565,7 +565,7 @@ namespace DecTest
         }
 
         [Test]
-        public void DerivedRefRecordables([Values] RecorderMode mode)
+        public void DerivedRefRecordables([ValuesExcept(RecorderMode.Simple)] RecorderMode mode)
         {
             UpdateTestParameters(new Dec.Config.UnitTestParameters { });
 

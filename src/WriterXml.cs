@@ -41,7 +41,7 @@ namespace Dec
         public override bool AllowReflection { get => writer.AllowReflection; }
         public override Recorder.IUserSettings UserSettings { get => writer.UserSettings; }
 
-        private WriterNodeXml(WriterXml writer, XElement parent, string label, int depth, Recorder.Context context) : base(context)
+        private WriterNodeXml(WriterXml writer, XContainer parent, string label, int depth, Recorder.Context context) : base(context)
         {
             this.writer = writer;
             this.depth = depth;
@@ -50,14 +50,14 @@ namespace Dec
             parent.Add(node);
         }
 
-        public static WriterNodeXml StartDec(WriterXmlCompose writer, XElement decRoot, string type, string decName)
+        public static WriterNodeXml StartDec(WriterXmlCompose writer, XContainer decRoot, string type, string decName)
         {
             var node = new WriterNodeXml(writer, decRoot, type, 0, new Recorder.Context());
             node.GetXElement().Add(new XAttribute("decName", decName));
             return node;
         }
 
-        public static WriterNodeXml StartData(WriterXmlRecord writer, XElement decRoot, string name, Type type)
+        public static WriterNodeXml StartData(WriterXml writer, XContainer decRoot, string name, Type type)
         {
             return new WriterNodeXml(writer, decRoot, name, 0, new Recorder.Context() { shared = Recorder.Context.Shared.Flexible });
         }
