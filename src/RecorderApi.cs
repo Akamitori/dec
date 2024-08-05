@@ -58,7 +58,7 @@ namespace Dec
                 // We'll be doing a second parse to parse *many* of these, but not all
                 var furtherParsing = new List<Action>();
                 var refDict = new Dictionary<string, object>();
-                var readerContext = new ReaderContext(true);
+                var readerContext = new ReaderContext() { allowReflection = false, allowRefs = true };
 
                 foreach (var reference in refs)
                 {

@@ -414,13 +414,8 @@ namespace Dec
     internal struct ReaderContext
     {
         public Dictionary<string, object> refs;
-        public bool recorderMode;
-
-        public ReaderContext(bool recorderMode)
-        {
-            this.recorderMode = recorderMode;
-            this.refs = null;
-        }
+        public bool allowRefs;
+        public bool allowReflection;
     }
 
     internal class RecorderReader : Recorder

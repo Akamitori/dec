@@ -470,7 +470,7 @@ namespace Dec
                 return original;
             }
 
-            if (context.recorderMode && nodes.Count > 1)
+            if (!context.allowReflection && nodes.Count > 1)
             {
                 Dbg.Err("Internal error, multiple nodes provided for recorder-mode behavior. Please report this!");
             }
@@ -533,7 +533,7 @@ namespace Dec
             // Doesn't mean anything outside recorderMode, so we check it for validity just in case
             string refKey;
             ReaderNode refKeyNode = null; // stored entirely for error reporting
-            if (!context.recorderMode)
+            if (!context.allowRefs)
             {
                 refKey = null;
                 foreach (var s_node in nodes)
@@ -851,7 +851,7 @@ namespace Dec
 
             // Special case: IRecordables
             IRecordable recordableBuffered = null;
-            if (typeof(IRecordable).IsAssignableFrom(type) && (context.recorderMode || type.GetMethod("Record").GetCustomAttribute<Bespoke.IgnoreRecordDuringParserAttribute>() == null))
+            if (typeof(IRecordable).IsAssignableFrom(type) && (!context.allowReflection || type.GetMethod("Record").GetCustomAttribute<Bespoke.IgnoreRecordDuringParserAttribute>() == null))
             {
                 // we're going to need to make one anyway so let's just go ahead and do that
                 IRecordable recordable = null;
@@ -1329,7 +1329,7 @@ namespace Dec
             // One big problem here is that I'm OK with security vulnerabilities in dec xmls. Those are either supplied by the developer or by mod authors who are intended to have full code support anyway.
             // I'm less OK with security vulnerabilities in save files. Nobody expects a savefile can compromise their system.
             // And the full reflection system is probably impossible to secure, whereas the Record system should be secureable.
-            if (context.recorderMode)
+            if (!context.allowReflection)
             {
                 // just pick the first node to get something to go on
                 Dbg.Err($"{orders[0].node.GetInputContext()}: Falling back to reflection within a Record system while parsing a {type}; this is currently not allowed for security reasons. Either you shouldn't be trying to serialize this, or it should implement Dec.IRecorder (https://zorbathut.github.io/dec/release/documentation/serialization.html), or you need a Dec.Converter (https://zorbathut.github.io/dec/release/documentation/custom.html)");
