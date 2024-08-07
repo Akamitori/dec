@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## [Unreleased]
+## [v0.7.0]
 ### Added
 * New Recorder.WriteSimple()/ReadSimple() modes that produce much simpler XML, at the cost of no references.
 * Type parsing now accepts curly braces in place of generic angle braces, in order to make XML easier to write.
