@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 * Type parsing now accepts curly braces in place of generic angle braces, in order to make XML easier to write.
 * Decs can now include `class` tags, if you need to specify a type that doesn't work as an XML node name.
 
+### Breaking
+* Bespoke.IgnoreRecordDuringParserAttribute has been removed in favor of IConditionalRecorder. If you want a version that supports both for ease of porting, check out v0.6.0.
+
 ### Improved
 * Documentation regarding Recorder load order.
 

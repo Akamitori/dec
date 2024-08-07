@@ -851,7 +851,7 @@ namespace Dec
 
             // Special case: IRecordables
             IRecordable recordableBuffered = null;
-            if (typeof(IRecordable).IsAssignableFrom(type) && (!context.allowReflection || type.GetMethod("Record").GetCustomAttribute<Bespoke.IgnoreRecordDuringParserAttribute>() == null))
+            if (typeof(IRecordable).IsAssignableFrom(type))
             {
                 // we're going to need to make one anyway so let's just go ahead and do that
                 IRecordable recordable = null;
@@ -1787,8 +1787,7 @@ namespace Dec
             }
 
             if (value is IRecordable
-                && (!(value is IConditionalRecordable) || (value as IConditionalRecordable).ShouldRecord(node.UserSettings))
-                && (!node.AllowReflection || value.GetType().GetMethod("Record").GetCustomAttribute<Bespoke.IgnoreRecordDuringParserAttribute>() == null))
+                && (!(value is IConditionalRecordable) || (value as IConditionalRecordable).ShouldRecord(node.UserSettings)))
             {
                 node.WriteRecord(value as IRecordable);
 
