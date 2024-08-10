@@ -135,7 +135,7 @@ namespace Dec
             resultIsValuelike = true;
         }
 
-        public object GetResult()
+        public object GetResult(bool sharable)
         {
             if (!resultReady)
             {
@@ -145,7 +145,7 @@ namespace Dec
                     // we'll just "clone" null, I guess
                 }
 
-                CreateResult();
+                CreateResult(sharable);
 
                 resultReady = true;
             }
@@ -153,7 +153,7 @@ namespace Dec
             return result;
         }
 
-        private void CreateResult()
+        private void CreateResult(bool sharable)
         {
             // this is kind of copied from serialization
             if (original == null)
@@ -215,7 +215,23 @@ namespace Dec
             bool deferred = false;
             if (!done)
             {
-                if (depth > 20 && !result.GetType().IsValueType)
+                bool doPending = false;
+                if (depth > 20 && !result.GetType().IsValueType && sharable)
+                {
+                    doPending = true;
+                }
+                else if (depth > 100)
+                {
+                    Dbg.Err("Depth limiter ran into an unshareable node stack that's too deep. Recommend using more `.Shared()` calls to allow for stack splitting. This may cause data corruption.");
+                    doPending = true;
+                }
+                else if (depth > 50)
+                {
+                    // this is currently going to be way too spammy, we'll fix it later
+                    Dbg.Wrn("Depth limiter is running into an unshareable node stack that's too deep. Recommend using more `.Shared()` calls to allow for stack splitting.");
+                }
+
+                if (doPending)
                 {
                     writer.RegisterPendingWrite(() =>
                     {
@@ -543,7 +559,7 @@ namespace Dec
 
             var child = new WriterNodeClone(writer, resetDepth ? 0 : depth + 1, RecorderContext.CreateChild());
             Serialization.ComposeElement(child, obj, obj.GetType());
-            return child.GetResult();
+            return child.GetResult(false);
         }
 
         public override void WritePrimitive(object value)
@@ -746,7 +762,7 @@ namespace Dec
             // we actually just ignore the type right now, we copy off the original
 
             item.SetModel(model);
-            return item.GetResult();
+            return item.GetResult(recorderContext.shared != Recorder.Context.Shared.Deny);
         }
     }
 

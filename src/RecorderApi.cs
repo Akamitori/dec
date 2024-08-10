@@ -250,7 +250,7 @@ namespace Dec
                 var writerNode = writerContext.StartData(typeof(T));
 
                 Serialization.ComposeElement(writerNode, obj, typeof(T));
-                var output = writerNode.GetResult();
+                var output = writerNode.GetResult(false);
 
                 writerContext.FinalizePendingWrites();
 

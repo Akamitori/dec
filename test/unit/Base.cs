@@ -173,6 +173,33 @@ namespace DecTest
             this.errorValidator = null;
         }
 
+        protected void ExpectWarningsAndErrors(Action action, string context = "unlabeled context", Func<string, bool> errorValidator = null, Func<string, bool> warningValidator = null)
+        {
+            Assert.IsFalse(handlingWarnings);
+            Assert.IsFalse(handlingErrors);
+            handlingWarnings = true;
+            handledWarning = false;
+            this.warningValidator = warningValidator;
+
+            handlingErrors = true;
+            handledError = false;
+            this.errorValidator = errorValidator;
+
+            action();
+
+            Assert.IsTrue(handlingWarnings);
+            Assert.IsTrue(handledWarning, $"Expected warning in {context} but did not generate one");
+            handlingWarnings = false;
+            handledWarning = false;
+            this.warningValidator = null;
+
+            Assert.IsTrue(handlingErrors);
+            Assert.IsTrue(handledError, $"Expected error in {context} but did not generate one");
+            handlingErrors = false;
+            handledError = false;
+            this.errorValidator = null;
+        }
+
         // Some stubs and universally-useful tools
 
         public class Stub { }
@@ -347,14 +374,18 @@ namespace DecTest
                 // this is all its own special thing
                 bool expectErrors = expectWriteErrors || expectReadErrors;
                 bool expectWarnings = expectWriteWarnings || expectReadWarnings;
-                Assert.IsFalse(expectErrors && expectWarnings);
 
                 T result = default;
                 void DoClone()
                 {
                     result = Dec.Recorder.Clone(input);
                 }
-                if (expectErrors)
+
+                if (expectErrors && expectWarnings)
+                {
+                    ExpectWarningsAndErrors(DoClone, "DoRecorder.Clone", errorValidator: readErrorValidator);
+                }
+                else if (expectErrors)
                 {
                     ExpectErrors(DoClone, "DoRecorder.Clone", errorValidator: readErrorValidator);
                 }

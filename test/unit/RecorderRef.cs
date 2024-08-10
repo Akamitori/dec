@@ -215,8 +215,10 @@ namespace DecTest
         }
 
         [Test]
-        public void DepthUnshared([ValuesExcept(RecorderMode.Validation, RecorderMode.Simple)] RecorderMode mode)
+        public void DepthUnsharedWarning([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
         {
+            // This test is all about yelling at you if your stack depth gets too high
+
             // We're actually really close to hitting stack overflow here, so we run it with 130 so we can still read it.
             const int depth = 130;
 
@@ -235,9 +237,7 @@ namespace DecTest
                 }
             }
 
-            // I'm divided on whether Clone should spit out errors for this or not
-            // but I *think* it's harmless if it doesn't
-            var deserialized = DoRecorderRoundTrip(root, mode, expectWriteErrors: mode != RecorderMode.Clone);
+            var deserialized = DoRecorderRoundTrip(root, mode, expectWriteErrors: mode != RecorderMode.Simple, expectWriteWarnings: mode == RecorderMode.Clone);
 
             {
                 var seen = new HashSet<UnsharedRecorder>();
@@ -250,6 +250,44 @@ namespace DecTest
 
                 Assert.AreEqual(depth, seen.Count);
             }
+        }
+
+
+        class OptionalChain : Dec.IRecordable
+        {
+            public int[] payload;
+            public OptionalChain chain;
+
+            public void Record(Dec.Recorder record)
+            {
+                record.Record(ref payload, "payload");
+                record.Record(ref chain, "chain");
+
+                if (record.Mode == Dec.Recorder.Direction.Read && payload != null)
+                {
+                    Assert.AreEqual(1, payload[0]);
+                }
+            }
+        }
+
+        [Test]
+        public void DepthTrueUnshared([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        {
+            const int maxDepth = 80;
+            OptionalChain[] chains = new OptionalChain[maxDepth];
+
+            for (int i = 0; i < maxDepth; ++i)
+            {
+                var link = chains[i] = new OptionalChain();
+                for (int j = 0; j < i; ++j)
+                {
+                    link = link.chain = new OptionalChain();
+                }
+
+                link.payload = new int[] { 1 };
+            }
+
+            var deserialized = DoRecorderRoundTrip(chains, mode, expectWriteWarnings: mode == RecorderMode.Clone);
         }
 
         [Test]
