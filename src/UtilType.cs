@@ -330,6 +330,7 @@ namespace Dec
             }
 
             int arrayRanks = 0;
+            string originalText = text;
             if (ArrayRankParser.Match(text) is Match match && match.Success)
             {
                 arrayRanks = match.Groups[1].Length + 1;
@@ -369,7 +370,7 @@ namespace Dec
                 result = result.MakeArrayType(arrayRanks);
             }
 
-            ParseCache[text] = result;
+            ParseCache[originalText] = result;
             return result;
         }
 

@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [Unreleased]
+### Fixed
+* Type parse cache bug that could cause non-arrays to be incorrectly parsed as arrays.
+
+
 ## [v0.7.0]
 ### Added
 * New Recorder.WriteSimple()/ReadSimple() modes that produce much simpler XML, at the cost of no references.

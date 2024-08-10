@@ -349,6 +349,13 @@ namespace DecTest
         {
             Assert.AreEqual(typeof(System.Collections.Generic.List<int>), parseType("System.Collections.Generic.List{int}"));
         }
+
+        [Test]
+        public void ArrayCachingError()
+        {
+            TypeConversionBidirectional(typeof(Base.Stub[]), "DecTest.Base.Stub[]");
+            TypeConversionBidirectional(typeof(Base.Stub), "DecTest.Base.Stub");
+        }
     }
 
     namespace OverloadedNames
