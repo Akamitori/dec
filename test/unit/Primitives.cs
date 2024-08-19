@@ -914,5 +914,53 @@ namespace DecTest
             Assert.AreEqual(BitConverter.SingleToInt32Bits(pair.flt), BitConverter.SingleToInt32Bits(deserialized.flt));
             Assert.AreEqual(BitConverter.DoubleToInt64Bits(pair.dbl), BitConverter.DoubleToInt64Bits(deserialized.dbl));
         }
+
+        public struct OptionalsValue : Dec.IRecordable
+        {
+            public int a;
+
+            public void Record(Dec.Recorder recorder)
+            {
+                recorder.Record(ref a, "a");
+            }
+        }
+        public struct OptionalsStruct : Dec.IRecordable
+        {
+            public int int_val;
+            public int? int_opt_nul;
+            public int? int_opt_val;
+            public OptionalsValue? struct_opt_nul;
+            public OptionalsValue? struct_opt_val;
+
+            public void Record(Dec.Recorder recorder)
+            {
+                recorder.Record(ref int_val, "int_val");
+                recorder.Record(ref int_opt_nul, "int_opt_nul");
+                recorder.Record(ref int_opt_val, "int_opt_val");
+                recorder.Record(ref struct_opt_nul, "struct_opt_nul");
+                recorder.Record(ref struct_opt_val, "struct_opt_val");
+            }
+        }
+
+        [Test]
+        public void Optionals([Values] RecorderMode mode)
+        {
+            var original = new OptionalsStruct
+            {
+                int_val = 1,
+                int_opt_nul = null,
+                int_opt_val = 2,
+                struct_opt_nul = null,
+                struct_opt_val = new OptionalsValue { a = 3 },
+            };
+
+            var deserialized = DoRecorderRoundTrip(original, mode);
+
+            Assert.AreEqual(original.int_val, deserialized.int_val);
+            Assert.AreEqual(original.int_opt_nul, deserialized.int_opt_nul);
+            Assert.AreEqual(original.int_opt_val, deserialized.int_opt_val);
+            Assert.AreEqual(original.struct_opt_nul, deserialized.struct_opt_nul);
+            Assert.AreEqual(original.struct_opt_val?.a, deserialized.struct_opt_val?.a);
+        }
     }
 }
