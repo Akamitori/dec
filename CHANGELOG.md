@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Unreleased]
+### Added
+* Bespoke_KeyTypeDict() parameter for Recorder which allows dictionary key fields to be implicitly treated as `class` tags for their values. This will be removed once I've figured out a more general way to support this.
+
 ### Fixed
 * Type parse cache bug that could cause non-arrays to be incorrectly parsed as arrays.
 * Cloning an object with a factory that depends on a non-shared recorded object can, if the stack depth is too deep, result in the non-shared recorded object not yet being ready.

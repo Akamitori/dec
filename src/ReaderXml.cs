@@ -253,9 +253,26 @@ namespace Dec
                         }
                     }
 
+                    Type valueType = referencedValueType;
+                    if (recorderContext.bespoke_keytypedict)
+                    {
+                        if (referencedKeyType != typeof(Type))
+                        {
+                            Dbg.Err($"{elementContext}: Bespoke_Keytypedict used on a dictionary that isn't a Type key");
+                        }
+
+                        // make sure the value of `key` can be implicitly converted to `referencedValueType`
+                        if (!referencedValueType.IsAssignableFrom((Type)key))
+                        {
+                            Dbg.Err($"{elementContext}: Key `{key}` cannot be implicitly converted to {referencedValueType}");
+                        }
+
+                        valueType = (Type)key;
+                    }
+
                     writtenFields?.Add(key);
 
-                    dict[key] = Serialization.ParseElement(new List<ReaderNodeParseable>() { new ReaderNodeXml(fieldElement, fileIdentifier, UserSettings) }, referencedValueType, originalValue, readerContext, recorderChildContext);
+                    dict[key] = Serialization.ParseElement(new List<ReaderNodeParseable>() { new ReaderNodeXml(fieldElement, fileIdentifier, UserSettings) }, valueType, originalValue, readerContext, recorderChildContext);
                 }
             }
         }

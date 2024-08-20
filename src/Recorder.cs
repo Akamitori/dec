@@ -59,6 +59,7 @@ namespace Dec
         void RecordAsThis<T>(ref T value);
 
         Recorder.Parameters WithFactory(Dictionary<Type, Func<Type, object>> factories);
+        Recorder.Parameters Bespoke_KeyTypeDict();
     }
 
     /// <summary>
@@ -79,6 +80,8 @@ namespace Dec
 
             internal bool asThis;
             internal bool shared;
+
+            internal bool bespoke_keytypedict;
 
             internal Dictionary<Type, Func<Type, object>> factories;
 
@@ -139,6 +142,19 @@ namespace Dec
             }
 
             /// <summary>
+            /// Informs the recorder system that the next parameter will be a Dictionary&lt;Type, V&gt; where the key should be interpreted as the type of the V.
+            /// </summary>
+            /// <remarks>
+            /// /// See [`Dec.Recorder.Bespoke_KeyTypeDict`](xref:Dec.Recorder.Bespoke_KeyTypeDict*) for details.
+            /// </remarks>
+            public Recorder.Parameters Bespoke_KeyTypeDict()
+            {
+                Parameters parameters = this;
+                parameters.bespoke_keytypedict = true;
+                return parameters;
+            }
+
+            /// <summary>
             /// Allow sharing for class objects referenced during this call.
             /// </summary>
             /// <remarks>
@@ -165,7 +181,7 @@ namespace Dec
 
             internal Context CreateContext()
             {
-                return new Context() { factories = factories, shared = shared ? Context.Shared.Allow : Context.Shared.Deny };
+                return new Context() { factories = factories, shared = shared ? Context.Shared.Allow : Context.Shared.Deny, bespoke_keytypedict = bespoke_keytypedict };
             }
         }
 
@@ -181,6 +197,8 @@ namespace Dec
 
             public Dictionary<Type, Func<Type, object>> factories;
             public Shared shared;
+
+            public bool bespoke_keytypedict;
 
             public Context CreateChild()
             {
@@ -308,6 +326,17 @@ namespace Dec
         public Parameters WithFactory(Dictionary<Type, Func<Type, object>> factories)
         {
             return new Parameters() { recorder = this, factories = factories };
+        }
+
+        /// <summary>
+        /// Informs the recorder system that the next parameter will be a Dictionary&lt;Type, V&gt; where the key should be interpreted as the type of the V.
+        /// </summary>
+        /// <remarks>
+        /// This is a specialty hack added for one specific user and may vanish with little warning, though if it does, it'll be replaced by something at least as capable.
+        /// </remarks>
+        public Recorder.Parameters Bespoke_KeyTypeDict()
+        {
+            return new Parameters() { recorder = this, bespoke_keytypedict = true };
         }
 
         /// <summary>
