@@ -241,5 +241,37 @@ namespace DecTest
 
             Assert.IsNull(result.target);
         }
+
+        public class RecordableDecDec : Dec.Dec, Dec.IRecordable
+        {
+            public RecordableDecDec link;
+
+            public void Record(Dec.Recorder recorder)
+            {
+                recorder.Record(ref link, "link");
+            }
+        }
+
+        [Test]
+        public void RecordableDec([Values] ParserMode mode)
+        {
+            UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitTypes = new Type[]{ typeof(RecordableDecDec) } });
+
+            var parser = new Dec.Parser();
+            parser.AddString(Dec.Parser.FileType.Xml, @"
+                <Decs>
+                    <RecordableDecDec decName=""TestADec"">
+                        <link>TestADec</link>
+                    </RecordableDecDec>
+                </Decs>");
+            parser.Finish();
+
+            DoParserTests(mode);
+
+            var result = Dec.Database<RecordableDecDec>.Get("TestADec");
+            Assert.IsNotNull(result);
+
+            Assert.AreEqual(result.link, result);
+        }
     }
 }

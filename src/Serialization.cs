@@ -849,6 +849,39 @@ namespace Dec
                 return result;
             }
 
+            // All our standard text-using options
+            // Placed before IRecordable just in case we have a Dec that is IRecordable
+            if ((typeof(Dec).IsAssignableFrom(type) && !isRootDec) ||
+                    type == typeof(Type) ||
+                    type == typeof(string) ||
+                    type.IsPrimitive ||
+                    (TypeDescriptor.GetConverter(type)?.CanConvertFrom(typeof(string)) ?? false)   // this is last because it's slow
+                )
+            {
+                foreach (var (parseCommand, node) in orders)
+                {
+                    switch (parseCommand)
+                    {
+                        case ParseCommand.Replace:
+                            // easy, done
+                            break;
+
+                        default:
+                            Dbg.Err($"{node.GetInputContext()}: Internal error, got invalid mode {parseCommand}");
+                            break;
+                    }
+
+                    if (hasChildren)
+                    {
+                        Dbg.Err($"{node.GetInputContext()}: Child nodes are not valid when parsing {type}");
+                    }
+
+                    result = ParseString(node.GetText(), type, result, node.GetInputContext());
+                }
+
+                return result;
+            }
+
             // Special case: IRecordables
             IRecordable recordableBuffered = null;
             if (typeof(IRecordable).IsAssignableFrom(type))
@@ -904,38 +937,6 @@ namespace Dec
                 }
 
                 // otherwise we just fall through
-            }
-
-            // All our standard text-using options
-            if ((typeof(Dec).IsAssignableFrom(type) && !isRootDec) ||
-                    type == typeof(Type) ||
-                    type == typeof(string) ||
-                    type.IsPrimitive ||
-                    (TypeDescriptor.GetConverter(type)?.CanConvertFrom(typeof(string)) ?? false)   // this is last because it's slow
-                )
-            {
-                foreach (var (parseCommand, node) in orders)
-                {
-                    switch (parseCommand)
-                    {
-                        case ParseCommand.Replace:
-                            // easy, done
-                            break;
-
-                        default:
-                            Dbg.Err($"{node.GetInputContext()}: Internal error, got invalid mode {parseCommand}");
-                            break;
-                    }
-
-                    if (hasChildren)
-                    {
-                        Dbg.Err($"{node.GetInputContext()}: Child nodes are not valid when parsing {type}");
-                    }
-
-                    result = ParseString(node.GetText(), type, result, node.GetInputContext());
-                }
-
-                return result;
             }
 
             // Nothing past this point even supports text, so let's just get angry and break stuff.
