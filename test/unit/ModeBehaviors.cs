@@ -859,7 +859,7 @@ namespace DecTest
                 </Decs>");
 
             parser.Finish();
-            
+
             Assert.AreEqual(2, Dec.Database<EntityDec>.Get("ConcreteEntity").components.Count);
         }
 
@@ -912,7 +912,7 @@ namespace DecTest
                                 <key>original</key>
                                 <value {patchString}>
                                     <b>4</b>
-                                </value>    
+                                </value>
                             </li>
                         </pairs>
                     </DictPairDec>
@@ -926,6 +926,67 @@ namespace DecTest
 
             Assert.AreEqual(3, Dec.Database<DictPairDec>.Get("DerivedInline").pairs["original"].b);
             Assert.AreEqual(4, Dec.Database<DictPairDec>.Get("DerivedLi").pairs["original"].b);
+        }
+
+        public class DictionaryItem
+        {
+            public int a;
+            public int b;
+        }
+
+        public class DictionaryHolderDec : Dec.Dec, Dec.IRecordable
+        {
+            public Dictionary<string, DictionaryItem> dict;
+
+            public void Record(Dec.Recorder recorder)
+            {
+                if (recorder.Mode == Dec.Recorder.Direction.Read)
+                {
+                    var dict = new Dictionary<string, DictionaryItem>();
+                    recorder.Record(ref dict, "dict");
+                    this.dict = dict;
+                }
+                else
+                {
+                    recorder.Record(ref dict, "dict");
+                }
+            }
+        }
+
+        [Test] [Ignore("Hard to fix and I currently don't need it")]
+        public void RecordableInheritance([Values] ParserMode mode)
+        {
+            UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitTypes = new Type[] { typeof(DictionaryHolderDec) } });
+
+            var parser = new Dec.Parser();
+            parser.AddString(Dec.Parser.FileType.Xml, $@"
+                <Decs>
+                    <DictionaryHolderDec abstract=""true"" decName=""Base"">
+                        <dict mode=""patch"">
+                            <original mode=""patch"">
+                                <a>1</a>
+                            </original>
+                            <new mode=""patch"">
+                                <b>2</b>
+                            </new>
+                        </dict>
+                    </DictionaryHolderDec>
+
+                    <DictionaryHolderDec parent=""Base"" decName=""Derived"">
+                        <dict mode=""patch"">
+                            <new mode=""patch"">
+                                <a>3</a>
+                            </new>
+                        </dict>
+                    </DictionaryHolderDec>
+                </Decs>");
+            parser.Finish();
+
+            DoParserTests(mode);
+
+            Assert.AreEqual(1, Dec.Database<DictionaryHolderDec>.Get("Derived").dict["original"].a);
+            Assert.AreEqual(2, Dec.Database<DictionaryHolderDec>.Get("Derived").dict["new"].b);
+            Assert.AreEqual(3, Dec.Database<DictionaryHolderDec>.Get("Derived").dict["new"].a);
         }
     }
 }
