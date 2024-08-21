@@ -208,6 +208,8 @@ namespace Dec
                     // Downgrade this in case we have something like a List<int>; we don't want to spit out warnings about int not being sharable
                     rv.shared = Shared.Flexible;
                 }
+
+                rv.bespoke_keytypedict = false;
                 return rv;
             }
 

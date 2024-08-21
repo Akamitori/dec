@@ -54,5 +54,40 @@ namespace DecTest
             Assert.AreEqual(2, (ktd.dict[typeof(DerivedAnother)] as DerivedAnother).data);
             Assert.AreEqual(3, (ktd.dict[typeof(DerivedAnother)] as DerivedAnother).more);
         }
+
+        public class DerivedDict : Base
+        {
+            public System.Collections.Generic.Dictionary<string, int> more;
+        }
+
+        [Test]
+        public void KeyTypeDictNested([Values] ParserMode mode)
+        {
+            UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitTypes = new Type[] { typeof(KeyTypeDictHolderDec), typeof(DerivedDict) } });
+
+            var parser = new Dec.Parser();
+            parser.AddString(Dec.Parser.FileType.Xml, @"
+                <Decs>
+                    <KeyTypeDictHolderDec decName=""TestDec"">
+                        <dict>
+                            <DerivedDict>
+                                <more>
+                                    <Somekey>42</Somekey>
+                                </more>
+                            </DerivedDict>
+                         </dict>
+                    </KeyTypeDictHolderDec>
+                </Decs>");
+            parser.Finish();
+
+            DoParserTests(mode);
+
+            var ktd = Dec.Database<KeyTypeDictHolderDec>.Get("TestDec");
+
+            Assert.AreEqual(1, ktd.dict.Count);
+            var dd = ktd.dict[typeof(DerivedDict)] as DerivedDict;
+            Assert.AreEqual(1, dd.more.Count);
+            Assert.AreEqual(42, dd.more["Somekey"]);
+        }
     }
 }
