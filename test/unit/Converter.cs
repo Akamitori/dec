@@ -131,34 +131,12 @@ namespace DecTest
             }
         }
 
-        [Test]
-        public void NumberConverterStringTest([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
-        {
-            UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(NumberConverterString) } });
-
-            Number root = new Number { x = 42 };
-            var deserialized = DoRecorderRoundTrip(root, mode);
-
-            Assert.AreEqual(root.x, deserialized.x);
-        }
-
         public class NumberConverterRecord : Dec.ConverterRecord<Number>
         {
             public override void Record(ref Number input, Dec.Recorder recorder)
             {
                 recorder.Record(ref input.x, "x");
             }
-        }
-
-        [Test]
-        public void NumberConverterRecordTest([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
-        {
-            UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(NumberConverterRecord) } });
-
-            Number root = new Number { x = 42 };
-            var deserialized = DoRecorderRoundTrip(root, mode);
-
-            Assert.AreEqual(root.x, deserialized.x);
         }
 
         public class NumberConverterFactory : Dec.ConverterFactory<Number>
@@ -179,10 +157,32 @@ namespace DecTest
             }
         }
 
-        [Test]
-        public void NumberConverterFactoryTest([ValuesExcept(RecorderMode.Validation)] RecorderMode mode)
+        public enum NumberConverterType
         {
-            UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { typeof(NumberConverterFactory) } });
+            String,
+            Record,
+            Factory,
+        }
+
+        private Type GetConverterType(NumberConverterType type)
+        {
+            switch (type)
+            {
+                case NumberConverterType.String:
+                    return typeof(NumberConverterString);
+                case NumberConverterType.Record:
+                    return typeof(NumberConverterRecord);
+                case NumberConverterType.Factory:
+                    return typeof(NumberConverterFactory);
+                default:
+                    throw new System.ArgumentException();
+            }
+        }
+
+        [Test]
+        public void NumberConverterTest([ValuesExcept(RecorderMode.Validation)] RecorderMode mode, [Values] NumberConverterType type)
+        {
+            UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitConverters = new Type[] { GetConverterType(type) } });
 
             Number root = new Number { x = 42 };
             var deserialized = DoRecorderRoundTrip(root, mode);
