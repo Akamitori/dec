@@ -764,5 +764,60 @@ namespace DecTest
             Assert.AreEqual(root.data_a.Length, deserialized.data_a.Length);
             Assert.AreSame(deserialized.data_a, deserialized.data_b);
         }
+
+        public struct NullableStruct : Dec.IRecordable
+        {
+            public int value;
+
+            public void Record(Dec.Recorder recorder)
+            {
+                recorder.Record(ref value, "value");
+            }
+        }
+
+        public class Nullables : Dec.IRecordable
+        {
+            public int? nullableIntA;
+            public int? nullableIntB;
+            public float? nullableFloatA;
+            public float? nullableFloatB;
+            public bool? nullableBoolA;
+            public bool? nullableBoolB;
+            public NullableStruct nullableStructA;
+            public NullableStruct nullableStructB;
+
+            public void Record(Dec.Recorder recorder)
+            {
+                recorder.Record(ref nullableIntA, "nullableIntA");
+                recorder.Record(ref nullableIntB, "nullableIntB");
+                recorder.Record(ref nullableFloatA, "nullableFloatA");
+                recorder.Record(ref nullableFloatB, "nullableFloatB");
+                recorder.Record(ref nullableBoolA, "nullableBoolA");
+                recorder.Record(ref nullableBoolB, "nullableBoolB");
+                recorder.Record(ref nullableStructA, "nullableStructA");
+                recorder.Record(ref nullableStructB, "nullableStructB");
+            }
+        }
+
+        [Test]
+        public void Nullable([Values] RecorderMode mode)
+        {
+            var root = new Nullables();
+            root.nullableIntA = 42;
+            root.nullableFloatA = 0.1234f;
+            root.nullableBoolA = true;
+            root.nullableStructA = new NullableStruct { value = 42 };
+
+            var deserialized = DoRecorderRoundTrip(root, mode);
+
+            Assert.AreEqual(root.nullableIntA, deserialized.nullableIntA);
+            Assert.AreEqual(root.nullableIntB, deserialized.nullableIntB);
+            Assert.AreEqual(root.nullableFloatA, deserialized.nullableFloatA);
+            Assert.AreEqual(root.nullableFloatB, deserialized.nullableFloatB);
+            Assert.AreEqual(root.nullableBoolA, deserialized.nullableBoolA);
+            Assert.AreEqual(root.nullableBoolB, deserialized.nullableBoolB);
+            Assert.AreEqual(root.nullableStructA, deserialized.nullableStructA);
+            Assert.AreEqual(root.nullableStructB, deserialized.nullableStructB);
+        }
     }
 }

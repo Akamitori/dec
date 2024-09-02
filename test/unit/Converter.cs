@@ -209,5 +209,35 @@ namespace DecTest
                 </Decs>");
             ExpectWarnings(() => parser.Finish(), warningValidator: err => err.Contains("InvalidField"));
         }
+
+        public class NumberNullableDec : Dec.Dec
+        {
+            public Number? a;
+            public Number? b;
+        }
+
+        [Test]
+        public void Nullable([ValuesExcept(ParserMode.Validation)] ParserMode mode, [Values] NumberConverterType type)
+        {
+            UpdateTestParameters(new Dec.Config.UnitTestParameters { explicitTypes = new Type[] { typeof(NumberNullableDec) }, explicitConverters = new Type[] { GetConverterType(type) }});
+
+            var parser = new Dec.Parser();
+            parser.AddString(Dec.Parser.FileType.Xml, @"
+                <Decs>
+                    <NumberNullableDec decName=""TestDec"">
+                        <a>" + (type == NumberConverterType.String ? "42" : "<x>42</x>") + @"</a>
+                    </NumberNullableDec>
+                </Decs>");
+            parser.Finish();
+
+            DoParserTests(mode);
+
+            var result = Dec.Database<NumberNullableDec>.Get("TestDec");
+            Assert.IsNotNull(result);
+
+            Assert.IsTrue(result.a.HasValue);
+            Assert.AreEqual(42, result.a.Value.x);
+            Assert.IsFalse(result.b.HasValue);
+        }
     }
 }

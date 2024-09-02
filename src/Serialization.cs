@@ -55,11 +55,146 @@ namespace Dec
         internal static System.Collections.Concurrent.ConcurrentDictionary<Type, Converter> ConverterObjects = new System.Collections.Concurrent.ConcurrentDictionary<Type, Converter>();
         internal static System.Collections.Concurrent.ConcurrentDictionary<Type, Type> ConverterGenericPrototypes = new System.Collections.Concurrent.ConcurrentDictionary<Type, Type>();
 
+        internal class ConverterNullableString<T> : ConverterString<T?> where T : struct
+        {
+            private ConverterString<T> child;
+
+            public ConverterNullableString(ConverterString<T> child)
+            {
+                this.child = child;
+            }
+
+            public override string Write(T? input)
+            {
+                if (!input.HasValue)
+                {
+                    Dbg.Err("Internal error: ConverterNullableString.Write called with null value; this should never happen");
+                    return "";
+                }
+
+                return child.Write(input.Value);
+            }
+
+            public override T? Read(string input, InputContext context)
+            {
+                // if we're null, we must have already handled this elsewhere
+                return child.Read(input, context);
+            }
+        }
+
+        internal class ConverterNullableRecord<T> : ConverterRecord<T?> where T : struct
+        {
+            private ConverterRecord<T> child;
+
+            public ConverterNullableRecord(ConverterRecord<T> child)
+            {
+                this.child = child;
+            }
+
+            public override void Record(ref T? input, Recorder recorder)
+            {
+                if (recorder.Mode == Recorder.Direction.Write)
+                {
+                    if (!input.HasValue)
+                    {
+                        Dbg.Err("Internal error: ConverterNullableRecord called with null value in write mode; this should never happen");
+                        return;
+                    }
+
+                    var value = input.Value;
+                    child.Record(ref value, recorder);
+                }
+                else if (recorder.Mode == Recorder.Direction.Read)
+                {
+                    T value = default;
+                    child.Record(ref value, recorder);
+                    input = value;
+                }
+                else
+                {
+                    Dbg.Err("Internal error: ConverterNullableRecord called with unknown mode; this should never happen");
+                }
+            }
+        }
+
+        internal class ConverterNullableFactory<T> : ConverterFactory<T?> where T : struct
+        {
+            private ConverterFactory<T> child;
+
+            public ConverterNullableFactory(ConverterFactory<T> child)
+            {
+                this.child = child;
+            }
+
+            public override T? Create(Recorder recorder)
+            {
+                return child.Create(recorder);
+            }
+
+            public override void Read(ref T? input, Recorder recorder)
+            {
+                if (!input.HasValue)
+                {
+                    Dbg.Err("Internal error: ConverterNullableFactory.Read called with null value; this should never happen");
+                    return;
+                }
+
+                var value = input.Value;
+                child.Read(ref value, recorder);
+                input = value;
+            }
+
+            public override void Write(T? input, Recorder recorder)
+            {
+                if (!input.HasValue)
+                {
+                    Dbg.Err("Internal error: ConverterNullableFactory.Write called with null value; this should never happen");
+                    return;
+                }
+
+                child.Write(input.Value, recorder);
+            }
+        }
+
         internal static Converter ConverterFor(Type inputType)
         {
             if (ConverterObjects.TryGetValue(inputType, out var converter))
             {
                 return converter;
+            }
+
+            // check for Nullable
+            if (inputType.IsConstructedGenericType && inputType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var nullableType = inputType.GenericTypeArguments[0];
+
+                // handle all types of converters
+                var originalConverter = ConverterFor(nullableType);
+                if (originalConverter is ConverterString nullableStringConverter)
+                {
+                    var nullableConverterType = typeof(ConverterNullableString<>).MakeGenericType(nullableType);
+                    var nullableConverter = (ConverterString)Activator.CreateInstance(nullableConverterType, new object[] { originalConverter });
+                    ConverterObjects[inputType] = nullableConverter;
+                    return nullableConverter;
+                }
+                else if (originalConverter is ConverterRecord nullableRecordConverter)
+                {
+                    var nullableConverterType = typeof(ConverterNullableRecord<>).MakeGenericType(nullableType);
+                    var nullableConverter = (ConverterRecord)Activator.CreateInstance(nullableConverterType, new object[] { originalConverter });
+                    ConverterObjects[inputType] = nullableConverter;
+                    return nullableConverter;
+                }
+                else if (originalConverter is ConverterFactory nullableFactoryConverter)
+                {
+                    var nullableConverterType = typeof(ConverterNullableFactory<>).MakeGenericType(nullableType);
+                    var nullableConverter = (ConverterFactory)Activator.CreateInstance(nullableConverterType, new object[] { originalConverter });
+                    ConverterObjects[inputType] = nullableConverter;
+                    return nullableConverter;
+                }
+                else if (originalConverter != null)
+                {
+                    Dbg.Err($"Found converter {originalConverter} which is not a string, record, or factory converter. This is not allowed.");
+                }
             }
 
             if (inputType.IsConstructedGenericType)
@@ -757,13 +892,15 @@ namespace Dec
                                 break;
                         }
 
-                        if (result == null)
+                        bool isNullable = type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+
+                        if (result == null && !isNullable)
                         {
                             result = type.CreateInstanceSafe("converterrecord", node);
                         }
 
                         // context might be null; that's OK at the moment
-                        if (result != null)
+                        if (result != null || isNullable)
                         {
                             var recorderReader = new RecorderReader(node, context, trackUsage: true);
                             try
