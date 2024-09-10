@@ -13,15 +13,9 @@ namespace Dec
     {
         public static ReaderNodeParseable Create(string input, string rootTag, string identifier, Recorder.IUserSettings userSettings)
         {
-            XDocument doc;
-
-            try
+            XDocument doc = UtilXml.ParseSafely(new System.IO.StringReader(input));
+            if (doc == null)
             {
-                doc = XDocument.Parse(input, LoadOptions.SetLineInfo);
-            }
-            catch (System.Xml.XmlException e)
-            {
-                Dbg.Ex(e);
                 return null;
             }
 

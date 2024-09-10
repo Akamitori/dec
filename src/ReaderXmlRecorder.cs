@@ -17,15 +17,9 @@ namespace Dec
 
         public static ReaderFileRecorderXml Create(string input, string identifier, Recorder.IUserSettings userSettings)
         {
-            XDocument doc;
-
-            try
+            XDocument doc = UtilXml.ParseSafely(new System.IO.StringReader(input));
+            if (doc == null)
             {
-                doc = XDocument.Parse(input, LoadOptions.SetLineInfo);
-            }
-            catch (System.Xml.XmlException e)
-            {
-                Dbg.Ex(e);
                 return null;
             }
 

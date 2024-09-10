@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 * Type parse cache bug that could cause non-arrays to be incorrectly parsed as arrays.
 * Cloning an object with a factory that depends on a non-shared recorded object can, if the stack depth is too deep, result in the non-shared recorded object not yet being ready.
 * Decs that are also IRecordable cause errors when referenced in other Decs.
+* Security issue: XML documents could cause arbitrary HTTP requests.
 
 
 ## [v0.7.0]

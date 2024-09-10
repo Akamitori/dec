@@ -1,3 +1,5 @@
+using System;
+
 namespace Dec
 {
     using System.Collections.Generic;
@@ -60,6 +62,33 @@ namespace Dec
                 return null;
             }
             return element.Nodes().OfType<XText>().FirstOrDefault()?.Value;
+        }
+
+        internal static XDocument ParseSafely(System.IO.TextReader input)
+        {
+            var settings = new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Prohibit,
+                XmlResolver = null,
+                IgnoreWhitespace = true,
+            };
+
+            using (var reader = XmlReader.Create(input, settings))
+            {
+                // this may be a second layer of culture info scoping, but I'll live with it for now
+                using (var _ = new CultureInfoScope(Config.CultureInfo))
+                {
+                    try
+                    {
+                        return XDocument.Load(reader, LoadOptions.SetLineInfo);
+                    }
+                    catch (System.Xml.XmlException e)
+                    {
+                        Dbg.Ex(e);
+                        return null;
+                    }
+                }
+            }
         }
     }
 }

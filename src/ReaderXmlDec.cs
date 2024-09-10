@@ -15,24 +15,10 @@ namespace Dec
 
         public static ReaderFileDecXml Create(TextReader input, string identifier, Recorder.IUserSettings userSettings)
         {
-            XDocument doc;
-
-            using (var _ = new CultureInfoScope(Config.CultureInfo))
+            XDocument doc = UtilXml.ParseSafely(input);
+            if (doc == null)
             {
-                try
-                {
-                    var settings = new XmlReaderSettings();
-                    settings.IgnoreWhitespace = true;
-                    using (var reader = XmlReader.Create(input, settings))
-                    {
-                        doc = XDocument.Load(reader, LoadOptions.SetLineInfo);
-                    }
-                }
-                catch (System.Xml.XmlException e)
-                {
-                    Dbg.Ex(e);
-                    return null;
-                }
+                return null;
             }
 
             var result = new ReaderFileDecXml();
