@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## [Unreleased]
+## [v0.7.1]
 ### Added
 * Proper support for Nullable.
 * Bespoke_KeyTypeDict() parameter for Recorder which allows dictionary key fields to be implicitly treated as `class` tags for their values. This will be removed once I've figured out a more general way to support this.
