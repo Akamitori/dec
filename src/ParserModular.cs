@@ -245,7 +245,11 @@ namespace Dec
         /// <summary>
         /// Finish all parsing.
         /// </summary>
-        public void Finish()
+        /// <remarks>
+        /// The `dependencies` parameter can be used to feed in dependencies for the PostLoad function.
+        /// This is a placeholder and is probably going to be replaced at some point, though only with something more capable.
+        /// </remarks>
+        public void Finish(List<Dag<Type>.Dependency> postLoadDependencies = null)
         {
             using (var _ = new CultureInfoScope(Config.CultureInfo))
             {
@@ -460,27 +464,36 @@ namespace Dec
                 }
                 s_Status = Status.Finalizing;
 
-                foreach (var dec in Database.List)
+                // figure out our config/postload order
+                var postprocessOrder = Dag<Type>.CalculateOrder(Database.ListTypes, postLoadDependencies ?? new List<Dag<Type>.Dependency>(), t => t.FullName);
+
+                foreach (var type in postprocessOrder)
                 {
-                    try
+                    foreach (var dec in Database.ListOfType(type))
                     {
-                        dec.ConfigErrors(err => Dbg.Err($"{dec}: {err}"));
-                    }
-                    catch (Exception e)
-                    {
-                        Dbg.Ex(e);
+                        try
+                        {
+                            dec.ConfigErrors(err => Dbg.Err($"{dec}: {err}"));
+                        }
+                        catch (Exception e)
+                        {
+                            Dbg.Ex(e);
+                        }
                     }
                 }
 
-                foreach (var dec in Database.List)
+                foreach (var type in postprocessOrder)
                 {
-                    try
+                    foreach (var dec in Database.ListOfType(type))
                     {
-                        dec.PostLoad(err => Dbg.Err($"{dec}: {err}"));
-                    }
-                    catch (Exception e)
-                    {
-                        Dbg.Ex(e);
+                        try
+                        {
+                            dec.PostLoad(err => Dbg.Err($"{dec}: {err}"));
+                        }
+                        catch (Exception e)
+                        {
+                            Dbg.Ex(e);
+                        }
                     }
                 }
 

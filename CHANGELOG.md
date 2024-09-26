@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [Unreleased]
+### Added
+* Added a method of passing class dependencies into Parser.Finish() and ParserModular.Finish(). This is a prototype and will probably change in the future.
+* Added a general-purpose stable dag evaluator, which is exposed mostly because it's often convenient.
+
+
 ## [v0.7.1]
 ### Added
 * Proper support for Nullable.
