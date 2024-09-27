@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 * Added a method of passing class dependencies into Parser.Finish() and ParserModular.Finish(). This is a prototype and will probably change in the future.
 * Added a general-purpose stable dag evaluator, which is exposed mostly because it's often convenient.
 
+### Breaking
+* Dec doesn't guarantee what order Decs are initialized in, and it still doesn't . . . but it was *pretty consistent*, and boy, did the above change seriously scramble the order they tend to get initialized in! If you have load dependencies, even if you don't realize that you do, don't be surprised if stuff breaks. Future versions of Dec might include a Dev Mode that intentionally randomizes load order (within the bounds of dependencies) to help catch these issues.
+
 
 ## [v0.7.1]
 ### Added
