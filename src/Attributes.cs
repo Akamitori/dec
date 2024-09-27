@@ -42,7 +42,7 @@ namespace Dec
     }
 
     /// <summary>
-    /// Signals that class should be cloned with standard assignment.
+    /// Signals that this class or struct should be cloned with standard assignment.
     /// </summary>
     /// <remarks>
     /// This is most useful for collections of objects, where it can rely on the collection's own cloning behavior to clone a vast swath of objects at once.
