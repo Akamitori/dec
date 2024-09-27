@@ -54,4 +54,25 @@ namespace Dec
     {
 
     }
+
+    /// <summary>
+    /// Signals that this class should have its ConfigErrors/PostLoad run after a different class.
+    /// </summary>
+    /// <remarks>
+    /// Currently valid and meaningful only when applied to, and referencing, things inheriting from Dec.Dec.
+    ///
+    /// Configuration order will be (mostly) stable with a fixed set of constraints into account.
+    /// </remarks>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class SetupDependsOnAttribute : Attribute
+    {
+        private Type type;
+
+        internal Type Type => type;
+
+        public SetupDependsOnAttribute(Type type)
+        {
+            this.type = type;
+        }
+    }
 }

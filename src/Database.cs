@@ -46,22 +46,6 @@ namespace Dec
         }
 
         /// <summary>
-        /// All registered dec root types.
-        /// </summary>
-        /// <remarks>
-        /// Types are listed in no guaranteed or stable order.
-        ///
-        /// As of this writing, this will return only Dec types that have instances. This may change someday.
-        /// </remarks>
-        public static IEnumerable<Type> ListTypes
-        {
-            get
-            {
-                return Lookup.Keys.Where(type => type.GetDecDatabaseStatus() == UtilType.DecDatabaseStatus.Root);
-            }
-        }
-
-        /// <summary>
         /// Retrieves a dec by base dec type and name.
         /// </summary>
         /// <remarks>
@@ -77,23 +61,6 @@ namespace Dec
             }
 
             return typedict.TryGetValue(name);
-        }
-
-        /// <summary>
-        /// Retrieves a list of decs of a given type.
-        /// </summary>
-        /// <remarks>
-        /// Returns null if no such dec exists.
-        /// </remarks>
-        public static IEnumerable<Dec> ListOfType(Type type)
-        {
-            if (!Lookup.ContainsKey(type))
-            {
-                WarnOnEmpty();
-                return Enumerable.Empty<Dec>();
-            }
-
-            return Lookup[type].Values;
         }
 
         /// <summary>

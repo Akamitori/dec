@@ -89,9 +89,9 @@ namespace Dec
         /// The `dependencies` parameter can be used to feed in dependencies for the PostLoad function.
         /// This is a placeholder and is probably going to be replaced at some point, though only with something more capable.
         /// </remarks>
-        public void Finish(List<Dag<Type>.Dependency> postLoadDependencies = null)
+        public void Finish()
         {
-            parserModdable.Finish(postLoadDependencies);
+            parserModdable.Finish();
         }
     }
 }

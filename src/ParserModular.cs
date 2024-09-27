@@ -249,7 +249,7 @@ namespace Dec
         /// The `dependencies` parameter can be used to feed in dependencies for the PostLoad function.
         /// This is a placeholder and is probably going to be replaced at some point, though only with something more capable.
         /// </remarks>
-        public void Finish(List<Dag<Type>.Dependency> postLoadDependencies = null)
+        public void Finish()
         {
             using (var _ = new CultureInfoScope(Config.CultureInfo))
             {
@@ -464,12 +464,49 @@ namespace Dec
                 }
                 s_Status = Status.Finalizing;
 
-                // figure out our config/postload order
-                var postprocessOrder = Dag<Type>.CalculateOrder(Database.ListTypes, postLoadDependencies ?? new List<Dag<Type>.Dependency>(), t => t.FullName);
+                // figure out our config/postload order; first we just run over all the Decs and collate classes
+                var decTypes = new Dictionary<Type, List<Dec>>();
+                foreach (var dec in Database.List)
+                {
+                    var list = decTypes.TryGetValue(dec.GetType());
+                    if (list == null)
+                    {
+                        list = new List<Dec>();
+                        decTypes[dec.GetType()] = list;
+                    }
+
+                    list.Add(dec);
+                }
+
+                List<Dag<Type>.Dependency> postLoadDependencies = new List<Dag<Type>.Dependency>();
+                foreach (var type in decTypes)
+                {
+                    foreach (var rsaa in type.Key.GetCustomAttributes<SetupDependsOnAttribute>())
+                    {
+                        var dependsOn = rsaa.Type;
+
+                        // make sure it inherits from Dec.Dec
+                        if (!dependsOn.IsSubclassOf(typeof(Dec)))
+                        {
+                            Dbg.Err($"{type.Key} has a SetupDependsOnAttribute on {dependsOn}, but {dependsOn} is not a Dec type");
+                            continue;
+                        }
+
+                        if (!decTypes.ContainsKey(rsaa.Type))
+                        {
+                            Dbg.Err($"{type.Key} has a SetupDependsOnAttribute on {dependsOn}, but {dependsOn} is not a known Dec type; this might result in weird behavior, either create an instance of {dependsOn} or pester ZorbaTHut on Discord if you need this fixed");
+                            continue;
+                        }
+
+                        postLoadDependencies.Add(new Dag<Type>.Dependency { before = rsaa.Type, after = type.Key });
+                    }
+                }
+
+                var postprocessOrder = Dag<Type>.CalculateOrder(decTypes.Keys, postLoadDependencies, t => t.Name);
 
                 foreach (var type in postprocessOrder)
                 {
-                    foreach (var dec in Database.ListOfType(type))
+                    foreach (var dec in decTypes[type])
                     {
                         try
                         {
@@ -484,7 +521,7 @@ namespace Dec
 
                 foreach (var type in postprocessOrder)
                 {
-                    foreach (var dec in Database.ListOfType(type))
+                    foreach (var dec in decTypes[type])
                     {
                         try
                         {
