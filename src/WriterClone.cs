@@ -175,7 +175,7 @@ namespace Dec
             // this needs to deal with anything that has complicated constructor behavior
             var originalType = original.GetType();
             bool done = false;
-            if (originalType.GetCustomAttribute<CloneWithAssignmentAttribute>() != null)
+            if (UtilType.CanBeCloneCopied(originalType))
             {
                 // okay
                 result = original;

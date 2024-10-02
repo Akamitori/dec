@@ -1843,7 +1843,7 @@ namespace Dec
 
             // Now we have things that *could* be references, but aren't.
 
-            if (node.AllowCloning && valType.GetCustomAttribute<CloneWithAssignmentAttribute>() != null)
+            if (node.AllowCloning && UtilType.CanBeCloneCopied(valType))
             {
                 node.WriteCloneCopy(value);
 

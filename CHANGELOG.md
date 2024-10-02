@@ -10,8 +10,12 @@ All notable changes to this project will be documented in this file.
 ### Breaking
 * Dec doesn't guarantee what order Decs are initialized in, and it still doesn't . . . but it was *pretty consistent*, and boy, did the above change seriously scramble the order they tend to get initialized in! If you have load dependencies, even if you don't realize that you do, don't be surprised if stuff breaks. Future versions of Dec might include a Dev Mode that intentionally randomizes load order (within the bounds of dependencies) to help catch these issues.
 
+### Fixed
+* Several Clone pathways that would incorrectly Record objects with a TreatAsValuelike converter.
+
 ### Improved
-* Clone performance on Dictionaries with asymmetrical copy-as-valuelike parameters.
+* Clone performance on Dictionaries with asymmetrical clone-as-valuelike parameters.
+* General Clone performance regarding asymmetrical clone-as-valuelike parameters.
 
 
 ## [v0.7.1]
