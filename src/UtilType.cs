@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace Dec
 {
     using System;
@@ -579,9 +581,30 @@ namespace Dec
         {
             return Util.CanBeShared(type);
         }
+
+        private static ConcurrentDictionary<Type, bool> CanBeCloneCopiedCache = new ConcurrentDictionary<Type, bool>();
         internal static bool CanBeCloneCopied(this Type type)
         {
-            return type.IsPrimitive || typeof(Dec).IsAssignableFrom(type) || type == typeof(string) || type == typeof(Type) || type.GetCustomAttribute<CloneWithAssignmentAttribute>() != null;
+            if (CanBeCloneCopiedCache.TryGetValue(type, out var result))
+            {
+                return result;
+            }
+
+            result = type.IsPrimitive || typeof(Dec).IsAssignableFrom(type) || type == typeof(string) || type == typeof(Type) || type.GetCustomAttribute<CloneWithAssignmentAttribute>() != null;
+
+            if (!result)
+            {
+                // gotta check for a converter
+                var converter = Serialization.ConverterFor(type);
+                if (converter != null && converter.TreatAsValuelike())
+                {
+                    result = true;
+                }
+            }
+
+            CanBeCloneCopiedCache[type] = result;
+
+            return result;
         }
 
         internal enum ParseModeCategory
