@@ -359,12 +359,28 @@ namespace Dec
                 resultDict.Clear();
 
                 // if the dictionary members are valuelike, we can just copy the whole thing
-                // in theory we could do this for partial valuelikes also, just cloning one side of it?
-                if (UtilType.CanBeCloneCopied(originalDict.GetType().GetGenericArguments()[0]) && UtilType.CanBeCloneCopied(originalDict.GetType().GetGenericArguments()[1]))
+                // skipping the tests is important enough that we'll just specialcase the various options
+                bool canCloneKey = UtilType.CanBeCloneCopied(originalDict.GetType().GetGenericArguments()[0]);
+                bool canCloneValue = UtilType.CanBeCloneCopied(originalDict.GetType().GetGenericArguments()[1]);
+                if (canCloneKey && canCloneValue)
                 {
                     foreach (DictionaryEntry kvp in originalDict)
                     {
                         resultDict[kvp.Key] = kvp.Value;
+                    }
+                }
+                else if (canCloneKey)
+                {
+                    foreach (DictionaryEntry kvp in originalDict)
+                    {
+                        resultDict[kvp.Key] = CloneChild(kvp.Value, resetDepth);
+                    }
+                }
+                else if (canCloneValue)
+                {
+                    foreach (DictionaryEntry kvp in originalDict)
+                    {
+                        resultDict[CloneChild(kvp.Key, resetDepth)] = kvp.Value;
                     }
                 }
                 else

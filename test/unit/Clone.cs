@@ -1,3 +1,4 @@
+using System.Linq;
 using Dec;
 
 namespace DecTest
@@ -172,6 +173,39 @@ namespace DecTest
             Assert.AreNotSame(cwarsArray, cwarsArrayClone);
             Assert.AreNotSame(cwars, cwarsArrayClone[0]);
             Assert.AreSame(cwars.list, cwarsArrayClone[0].list);
+        }
+
+        [Test]
+        public void WithAssignmentAttribute_Dict11()
+        {
+            Dictionary<CloneWithAssignmentClass, CloneWithAssignmentClass> dict = new Dictionary<CloneWithAssignmentClass, CloneWithAssignmentClass>();
+            dict[new CloneWithAssignmentClass()] = new CloneWithAssignmentClass();
+
+            var dictClone = Dec.Recorder.Clone(dict);
+            Assert.AreSame(dict.First().Key, dictClone.First().Key);
+            Assert.AreSame(dict.First().Value, dictClone.First().Value);
+        }
+
+        [Test]
+        public void WithAssignmentAttribute_Dict10()
+        {
+            Dictionary<CloneWithAssignmentClass, CloneWithRecordableClass> dict = new Dictionary<CloneWithAssignmentClass, CloneWithRecordableClass>();
+            dict[new CloneWithAssignmentClass()] = new CloneWithRecordableClass();
+
+            var dictClone = Dec.Recorder.Clone(dict);
+            Assert.AreSame(dict.First().Key, dictClone.First().Key);
+            Assert.AreNotSame(dict.First().Value, dictClone.First().Value);
+        }
+
+        [Test]
+        public void WithAssignmentAttribute_Dict01()
+        {
+            Dictionary<CloneWithRecordableClass, CloneWithAssignmentClass> dict = new Dictionary<CloneWithRecordableClass, CloneWithAssignmentClass>();
+            dict[new CloneWithRecordableClass()] = new CloneWithAssignmentClass();
+
+            var dictClone = Dec.Recorder.Clone(dict);
+            Assert.AreNotSame(dict.First().Key, dictClone.First().Key);
+            Assert.AreSame(dict.First().Value, dictClone.First().Value);
         }
     }
 }
