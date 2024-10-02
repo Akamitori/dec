@@ -399,7 +399,7 @@ namespace Dec
                 var clearFunction = result.GetType().GetMethod("Clear");
                 clearFunction.Invoke(result, null);
 
-                // if the dictionary members are valuelike, we can just copy the whole thing
+                // if the hashset members are valuelike, we can just copy the whole thing
                 if (UtilType.CanBeCloneCopied(originalSet.GetType().GetGenericArguments()[0]))
                 {
                     var addFunction = result.GetType().GetMethod("Add");
@@ -427,7 +427,7 @@ namespace Dec
                 var clearFunction = result.GetType().GetMethod("Clear");
                 clearFunction.Invoke(result, null);
 
-                // if the dictionary members are valuelike, we can just copy the whole thing
+                // if the queue members are valuelike, we can just copy the whole thing
                 if (UtilType.CanBeCloneCopied(originalQueue.GetType().GetGenericArguments()[0]))
                 {
                     // there might be a faster way to do this?
@@ -455,7 +455,7 @@ namespace Dec
                 var clearFunction = result.GetType().GetMethod("Clear");
                 clearFunction.Invoke(result, null);
 
-                // if the dictionary members are valuelike, we can just copy the whole thing
+                // if the stack members are valuelike, we can just copy the whole thing
                 if (UtilType.CanBeCloneCopied(originalStack.GetType().GetGenericArguments()[0]))
                 {
                     foreach (var item in originalStack)
