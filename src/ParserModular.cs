@@ -516,13 +516,7 @@ namespace Dec
                         {
                             Dbg.Ex(e);
                         }
-                    }
-                }
 
-                foreach (var type in postprocessOrder)
-                {
-                    foreach (var dec in decTypes[type])
-                    {
                         try
                         {
                             dec.PostLoad(err => Dbg.Err($"{dec}: {err}"));
