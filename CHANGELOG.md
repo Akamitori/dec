@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
-* Added a method of passing class dependencies into Parser.Finish() and ParserModular.Finish(). This is a prototype and will probably change in the future.
+* Added SetupDependsOnAttribute, which allows you to define ConfigErrors/PostLoad dependencies between Dec classes. This is a prototype and will probably change in the future.
 * Added a general-purpose stable dag evaluator, which is exposed mostly because it's often convenient.
 
 ### Breaking
